@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electric Fields Quiz - Physics With Keith</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000000;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        #header {
+            background: #000000;
+            color: #00FFFF;
+            padding: 8px 16px;
+            border-bottom: 2px solid #00FFFF;
+            font-size: 14px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #title {
+            flex: 1;
+        }
+
+        #controls {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 11px;
+        }
+
+        #quizInfo {
+            display: flex;
+            gap: 25px;
+            font-size: 12px;
+            padding-left: 25px;
+            border-left: 2px solid #FF00FF;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .slider {
+            width: 100px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #00FFFF;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .slider:hover {
+            opacity: 1;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #FF00FF;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        .slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            background: #FF00FF;
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: #FF00FF;
+        }
+
+        #mainContent {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #visualizationArea {
+            flex: 1;
+            position: relative;
+            background: #000000;
+            overflow: hidden;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: crosshair;
+            image-rendering: crisp-edges;
+        }
+
+        #sidebar {
+            width: 350px;
+            background: #000000;
+            border-left: 2px solid #FF00FF;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow-y: auto;
+            color: #FFFFFF;
+        }
+
+        .question-section {
+            margin-bottom: 15px;
+        }
+
+        .question-title {
+            color: #00FFFF;
+            font-size: 10px;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            background: #000000;
+            border: 2px solid #FF00FF;
+            color: #FFFFFF;
+            padding: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            outline: none;
+            border-color: #00FFFF;
+        }
+
+        .button {
+            background: #FF00FF;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 11px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            margin: 4px 0;
+            width: 100%;
+        }
+
+        .button:hover {
+            background: #00FFFF;
+        }
+
+        .button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 8px 0;
+            border: 2px solid;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .message.correct {
+            border-color: #00FFFF;
+            color: #00FFFF;
+        }
+
+        .message.incorrect {
+            border-color: #FF00FF;
+            color: #FF00FF;
+        }
+
+        .message.info {
+            border-color: #FFFFFF;
+            color: #FFFFFF;
+        }
+
+        #chargeLabels {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #FFFFFF;
+            font-size: 10px;
+            pointer-events: none;
+            z-index: 10;
+            line-height: 1.5;
+            text-shadow: 0 0 4px #000000, 0 0 8px #000000;
+        }
+
+        .charge-label-item {
+            margin-bottom: 6px;
+        }
+
+        #scaffoldAnswers {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #00FFFF;
+            font-size: 9px;
+            pointer-events: none;
+            z-index: 10;
+            line-height: 1.4;
+            text-shadow: 0 0 4px #000000, 0 0 8px #000000;
+            max-width: 400px;
+        }
+
+        .scaffold-answer-item {
+            margin-bottom: 4px;
+            border-left: 2px solid #00FFFF;
+            padding-left: 6px;
+        }
+
+        #endScreen {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000;
+            border: 4px solid #00FFFF;
+            padding: 40px;
+            z-index: 100;
+            text-align: center;
+            color: #FFFFFF;
+        }
+
+        #endScreen h2 {
+            color: #00FFFF;
+            font-size: 22px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        #endScreen .stat {
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        #confirmEndDialog {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000;
+            border: 4px solid #FF00FF;
+            padding: 30px;
+            z-index: 100;
+            text-align: center;
+            color: #FFFFFF;
+        }
+
+        #confirmEndDialog h3 {
+            color: #FF00FF;
+            font-size: 16px;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        #welcomeScreen {
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #000000;
+            border: 4px solid #00FFFF;
+            padding: 30px 40px;
+            z-index: 100;
+            color: #FFFFFF;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        #welcomeScreen h2 {
+            color: #00FFFF;
+            font-size: 20px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        #welcomeScreen h3 {
+            color: #FF00FF;
+            font-size: 14px;
+            margin: 15px 0 8px 0;
+            letter-spacing: 1px;
+        }
+
+        #welcomeScreen p {
+            font-size: 11px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        #welcomeScreen ul {
+            font-size: 11px;
+            line-height: 1.6;
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        #welcomeScreen .formula {
+            color: #00FFFF;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin: 8px 0;
+            padding-left: 15px;
+        }
+
+        #welcomeScreen .scoring {
+            background: #000000;
+            border: 2px solid #FF00FF;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 10px;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dialog-buttons .button {
+            flex: 1;
+        }
+
+        sup {
+            font-size: 0.75em;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+            top: -0.5em;
+        }
+
+        sub {
+            font-size: 0.75em;
+            line-height: 0;
+            position: relative;
+            vertical-align: baseline;
+            bottom: -0.25em;
+        }
+
+        .scaffold-section {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .scaffold-section.active {
+            display: block;
+        }
+
+        .small-input {
+            width: 100%;
+            background: #000000;
+            border: 1px solid #FFFFFF;
+            color: #FFFFFF;
+            padding: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            margin: 4px 0;
+        }
+
+        .small-button {
+            background: #FFFFFF;
+            color: #000000;
+            border: none;
+            padding: 5px 10px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 10px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            margin: 4px 0;
+            width: 100%;
+        }
+
+        .small-button:hover {
+            background: #00FFFF;
+        }
+
+        /* Scanline effect */
+        #visualizationArea::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0) 0px,
+                rgba(0, 0, 0, 0) 2px,
+                rgba(0, 255, 255, 0.03) 2px,
+                rgba(0, 255, 255, 0.03) 4px
+            );
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <div id="title">ELECTRIC FIELDS QUIZ</div>
+            <div id="controls">
+                <div class="control-group">
+                    <span>ZOOM:</span>
+                    <input type="range" class="slider" id="zoomSlider" min="0.3" max="2.0" step="0.1" value="1.0">
+                    <span id="zoomValue">1.0x</span>
+                </div>
+                <div class="control-group">
+                    <input type="checkbox" id="equipotentialToggle" checked>
+                    <span>EQUIPOTENTIALS</span>
+                </div>
+                <div class="control-group">
+                    <input type="checkbox" id="fieldLinesToggle" checked>
+                    <span>FIELD LINES</span>
+                </div>
+                <div class="control-group">
+                    <span>RESOLUTION:</span>
+                    <input type="range" class="slider" id="equipotentialSpacing" min="5" max="100" step="1" value="15">
+                    <span id="spacingValue">15</span>
+                </div>
+                <div class="control-group">
+                    <span>VIEW:</span>
+                    <select id="viewSelector" style="background: #000; color: #00FFFF; border: 1px solid #00FFFF; padding: 2px 8px; font-family: 'Courier New', monospace; font-size: 11px; cursor: pointer;">
+                        <option value="isometric">ISOMETRIC</option>
+                        <option value="side">PLAN</option>
+                        <option value="plan">SIDE</option>
+                    </select>
+                </div>
+                <div id="quizInfo">
+                    <div>SCORE: <span id="scoreDisplay">0</span></div>
+                    <div>TIME: <span id="timerDisplay">20:00</span></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mainContent">
+            <div id="visualizationArea">
+                <canvas id="canvas"></canvas>
+                <div id="chargeLabels"></div>
+                <div id="scaffoldAnswers"></div>
+            </div>
+
+            <div id="sidebar">
+                <div class="question-section">
+                    <div class="question-title">POINT X COORDINATES:</div>
+                    <div id="pointXInfo" style="color: #FFFFFF; font-size: 11px; margin-bottom: 12px;"></div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question-title">ELECTRIC POTENTIAL AT X (V):</div>
+                    <input type="text" id="potentialInput" placeholder="Enter value...">
+                </div>
+
+                <div class="question-section">
+                    <div class="question-title">FIELD STRENGTH AT X (N/C):</div>
+                    <input type="text" id="fieldStrengthInput" placeholder="Enter value...">
+                </div>
+
+                <button class="button" id="checkAnswersBtn">CHECK ANSWERS</button>
+                <button class="button" id="nextQuestionBtn" style="display: none;">NEXT QUESTION</button>
+                <button class="button" id="endEarlyBtn">END QUIZ</button>
+
+                <div id="messageArea"></div>
+                <div id="scaffoldArea"></div>
+            </div>
+        </div>
+
+        <div id="endScreen">
+            <h2>QUIZ COMPLETE</h2>
+            <div id="finalStats"></div>
+            <button class="button" onclick="location.reload()" style="margin-top: 20px;">RESTART</button>
+        </div>
+
+        <div id="confirmEndDialog">
+            <h3>END QUIZ EARLY?</h3>
+            <p style="font-size: 12px; margin: 10px 0;">Your progress will be saved.</p>
+            <div class="dialog-buttons">
+                <button class="button" id="confirmEndYes">YES, END QUIZ</button>
+                <button class="button" id="confirmEndNo">NO, CONTINUE</button>
+            </div>
+        </div>
+
+        <div id="welcomeScreen">
+            <h2>ELECTRIC FIELDS QUIZ</h2>
+            
+            <h3>QUIZ RULES</h3>
+            <p>You have <strong>20 minutes</strong> to answer as many questions as possible.</p>
+            <p>Each question presents two charges (A and B) and a point X. You must calculate:</p>
+            <ul>
+                <li>Electric potential at point X</li>
+                <li>Electric field strength at point X</li>
+            </ul>
+            <p>Answers must be correct to <strong>2 significant figures</strong>.</p>
+            
+            <div class="scoring">
+                <strong style="color: #00FFFF;">SCORING:</strong><br>
+                • Correct on first try: <strong>10 points</strong><br>
+                • Using scaffolding: <strong>6 points total</strong> (1 point per step)
+            </div>
+
+            <h3>CALCULATING ELECTRIC POTENTIAL</h3>
+            <p>Electric potential is a <strong>scalar</strong> quantity (just add the values):</p>
+            <div class="formula">1. Calculate potential from charge A: V<sub>A</sub> = kQ<sub>A</sub>/r<sub>A</sub></div>
+            <div class="formula">2. Calculate potential from charge B: V<sub>B</sub> = kQ<sub>B</sub>/r<sub>B</sub></div>
+            <div class="formula">3. Total potential: V<sub>total</sub> = V<sub>A</sub> + V<sub>B</sub></div>
+            <p style="font-size: 10px; color: #FFFFFF;">Note: Positive charges create positive potential, negative charges create negative potential.</p>
+
+            <h3>CALCULATING FIELD STRENGTH</h3>
+            <p>Field strength is a <strong>vector</strong> quantity (requires vector addition):</p>
+            <div class="formula">1. Calculate field from charge A: E<sub>A</sub> = k|Q<sub>A</sub>|/r<sub>A</sub><sup>2</sup></div>
+            <div class="formula">2. Calculate field from charge B: E<sub>B</sub> = k|Q<sub>B</sub>|/r<sub>B</sub><sup>2</sup></div>
+            <div class="formula">3. Find angle between the two field vectors</div>
+            <div class="formula">4. Use cosine rule: E<sub>resultant</sub> = √(E<sub>A</sub><sup>2</sup> + E<sub>B</sub><sup>2</sup> + 2E<sub>A</sub>E<sub>B</sub>cos θ)</div>
+            <p style="font-size: 10px; color: #FFFFFF;">Fields point away from positive charges, toward negative charges.</p>
+
+            <h3>CONSTANTS & UNITS</h3>
+            <p>k = 8.99 × 10<sup>9</sup> N·m<sup>2</sup>/C<sup>2</sup></p>
+            <p>Charges are in nC (10<sup>-9</sup> C), distances in meters</p>
+
+            <h3>NAVIGATION</h3>
+            <p>• Use <strong>Tab</strong> to move between input fields</p>
+            <p>• Press <strong>Enter</strong> to submit answers</p>
+            <p>• Drag the visualization to rotate the view</p>
+            <p>• Toggle equipotentials and field lines in the header</p>
+
+            <button class="button" id="startQuizBtn" style="margin-top: 20px;">START QUIZ</button>
+        </div>
+    </div>
+
+    <script>
+        // CGA Palette colors
+        const COLORS = {
+            BLACK: '#000000',
+            CYAN: '#00FFFF',
+            MAGENTA: '#FF00FF',
+            WHITE: '#FFFFFF'
+        };
+
+        // Physics constants
+        const K_REAL = 8.99e9; // Real Coulomb's constant for quiz calculations
+        const K_VIS = 5000; // Scaled constant for visualization
+
+        // Canvas setup
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let activeCharges = []; // Charges in the scene
+        let zoomLevel = 1.0;
+        let rotationAngle = 45;
+        let isRotating = false;
+        let lastRotateX = 0;
+        let showEquipotentials = true;
+        let showFieldLines = true;
+        let equipotentialLevels = 15;
+        
+        // Camera tilt
+        let cameraTilt = 70;
+        let targetCameraTilt = 70;
+        const ISOMETRIC_TILT = 70;
+        const PLAN_TILT = 90;
+        const SIDE_TILT = 0;
+        const TILT_ANIMATION_SPEED = 0.15;
+        let currentView = 'isometric';
+
+        // Grid settings
+        const GRID_SIZE = 100;
+        const GRID_SPACING = 8;
+        const CHARGE_PLANE_Z = 0;
+        const POTENTIAL_SCALE = 0.1;
+
+        // Quiz state
+        let score = 0;
+        let timeRemaining = 20 * 60;
+        let questionNumber = 0;
+        let currentPointX = null;
+        let correctAnswers = null;
+        let quizActive = false;
+        let quizStarted = false;
+        let scaffoldingActive = false;
+        let scaffoldStep = 0;
+        let questionsAnswered = [];
+        let currentQuestionStartTime = 0;
+        let currentFocusIndex = 0;
+        const inputElements = [];
+        let timerInterval = null;
+        let scaffoldAnswersRevealed = {};
+        let scaffoldAttempts = {};
+
+        // Resize canvas
+        function resizeCanvas() {
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Controls
+        const zoomSlider = document.getElementById('zoomSlider');
+        const zoomValue = document.getElementById('zoomValue');
+        const equipotentialToggle = document.getElementById('equipotentialToggle');
+        const fieldLinesToggle = document.getElementById('fieldLinesToggle');
+        const equipotentialSpacing = document.getElementById('equipotentialSpacing');
+        const spacingValue = document.getElementById('spacingValue');
+        const viewSelector = document.getElementById('viewSelector');
+        
+        zoomSlider.addEventListener('input', (e) => {
+            zoomLevel = parseFloat(e.target.value);
+            zoomValue.textContent = zoomLevel.toFixed(1) + 'x';
+        });
+
+        equipotentialToggle.addEventListener('change', (e) => {
+            showEquipotentials = e.target.checked;
+        });
+
+        fieldLinesToggle.addEventListener('change', (e) => {
+            showFieldLines = e.target.checked;
+        });
+
+        equipotentialSpacing.addEventListener('input', (e) => {
+            equipotentialLevels = parseInt(e.target.value);
+            spacingValue.textContent = equipotentialLevels;
+        });
+
+        viewSelector.addEventListener('change', (e) => {
+            currentView = e.target.value;
+            switch(currentView) {
+                case 'isometric':
+                    targetCameraTilt = ISOMETRIC_TILT;
+                    break;
+                case 'side':
+                    targetCameraTilt = PLAN_TILT;
+                    break;
+                case 'plan':
+                    targetCameraTilt = SIDE_TILT;
+                    break;
+            }
+        });
+
+        // Timer
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (!quizActive) return;
+                timeRemaining--;
+                const minutes = Math.floor(timeRemaining / 60);
+                const seconds = timeRemaining % 60;
+                document.getElementById('timerDisplay').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                if (timeRemaining <= 0) {
+                    endQuiz();
+                }
+            }, 1000);
+        }
+
+        // 3D projection
+        function project3DToScreen(x, y, z) {
+            const rad = rotationAngle * Math.PI / 180;
+            const rotX = x * Math.cos(rad) - y * Math.sin(rad);
+            const rotY = x * Math.sin(rad) + y * Math.cos(rad);
+            
+            const tiltRad = cameraTilt * Math.PI / 180;
+            const sinTilt = Math.sin(tiltRad);
+            const cosTilt = Math.cos(tiltRad);
+            
+            const scale = zoomLevel * 1.5;
+            const screenX = rotX * scale + canvas.width / 2;
+            const screenY = (rotY * cosTilt - z * sinTilt) * scale + canvas.height / 2;
+            
+            return { x: screenX, y: screenY };
+        }
+
+        function screenToPlane(screenX, screenY) {
+            const rad = rotationAngle * Math.PI / 180;
+            const scale = zoomLevel * 1.5;
+            const tiltRad = cameraTilt * Math.PI / 180;
+            const cosTilt = Math.cos(tiltRad);
+            
+            const cx = screenX - canvas.width / 2;
+            const cy = screenY - canvas.height / 2;
+            
+            const rotX = cx / scale;
+            const rotY = cy / (scale * cosTilt);
+            
+            const x = rotX * Math.cos(-rad) - rotY * Math.sin(-rad);
+            const y = rotX * Math.sin(-rad) + rotY * Math.cos(-rad);
+            
+            return { x, y };
+        }
+
+        // Calculate electric potential at a point (for visualization)
+        function calculatePotential(x, y) {
+            let potential = 0;
+            for (const charge of activeCharges) {
+                const dx = x - charge.x;
+                const dy = y - charge.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                if (distance > 1) {
+                    potential += (K_VIS * charge.chargeVis) / distance;
+                }
+            }
+            return potential;
+        }
+
+        // Calculate electric field (for visualization)
+        function calculateField(x, y) {
+            let fx = 0;
+            let fy = 0;
+            for (const charge of activeCharges) {
+                const dx = x - charge.x;
+                const dy = y - charge.y;
+                const distSq = dx * dx + dy * dy;
+                const dist = Math.sqrt(distSq);
+                if (dist > 1) {
+                    const fieldMag = (K_VIS * charge.chargeVis) / distSq;
+                    // Positive charges: field points away (same direction as dx, dy)
+                    // Negative charges: field points toward (opposite direction)
+                    fx += fieldMag * dx / dist;
+                    fy += fieldMag * dy / dist;
+                }
+            }
+            return { fx, fy };
+        }
+
+        // Real physics calculations (for quiz)
+        function calculateDistance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+        }
+
+        function calculatePotentialReal(charges, px, py) {
+            let totalPotential = 0;
+            for (const charge of charges) {
+                const r = calculateDistance(charge.xReal, charge.yReal, px, py);
+                if (r > 0) {
+                    totalPotential += (K_REAL * charge.chargeReal) / r;
+                }
+            }
+            return totalPotential;
+        }
+
+        function calculateFieldStrengthReal(charges, px, py) {
+            let ex = 0;
+            let ey = 0;
+            for (const charge of charges) {
+                const dx = px - charge.xReal;
+                const dy = py - charge.yReal;
+                const r = Math.sqrt(dx * dx + dy * dy);
+                if (r > 0) {
+                    const eMagnitude = (K_REAL * Math.abs(charge.chargeReal)) / (r * r);
+                    // Field points away from positive, toward negative
+                    if (charge.chargeReal > 0) {
+                        ex += eMagnitude * (dx / r);
+                        ey += eMagnitude * (dy / r);
+                    } else {
+                        ex += -eMagnitude * (dx / r);
+                        ey += -eMagnitude * (dy / r);
+                    }
+                }
+            }
+            return Math.sqrt(ex * ex + ey * ey);
+        }
+
+        // Significant figures
+        function roundToSF(value, sf) {
+            if (value === 0) return 0;
+            const magnitude = Math.floor(Math.log10(Math.abs(value)));
+            const scale = Math.pow(10, sf - 1 - magnitude);
+            return Math.round(value * scale) / scale;
+        }
+
+        function checkAnswer(studentValue, correctValue, sf = 2) {
+            const studentRounded = roundToSF(studentValue, sf);
+            const correctRounded = roundToSF(correctValue, sf);
+            if (Math.abs(studentRounded - correctRounded) < 1e-10) {
+                return { correct: true, closeEnough: false };
+            }
+            const magnitude = Math.floor(Math.log10(Math.abs(correctValue)));
+            const lastDigitValue = Math.pow(10, magnitude - (sf - 1));
+            const difference = Math.abs(studentRounded - correctRounded);
+            if (difference <= lastDigitValue * 1.1) {
+                return { correct: false, closeEnough: true };
+            }
+            return { correct: false, closeEnough: false };
+        }
+
+        // Generate random question
+        function generateQuestion() {
+            questionNumber++;
+            currentQuestionStartTime = Date.now();
+            scaffoldingActive = false;
+            scaffoldStep = 0;
+            scaffoldAnswersRevealed = {};
+            scaffoldAttempts = {};
+            document.getElementById('scaffoldArea').innerHTML = '';
+            document.getElementById('messageArea').innerHTML = '';
+            document.getElementById('scaffoldAnswers').innerHTML = '';
+            document.getElementById('nextQuestionBtn').style.display = 'none';
+            document.getElementById('checkAnswersBtn').style.display = 'block';
+            
+            // Generate two random charges (nanocoulombs)
+            const chargeValues = [1, 2, 3, 5, 10, 15, 20]; // nC
+            const charge1Real = (chargeValues[Math.floor(Math.random() * chargeValues.length)]) * 1e-9;
+            const charge2Real = (chargeValues[Math.floor(Math.random() * chargeValues.length)]) * 1e-9;
+            
+            // Random signs
+            const sign1 = Math.random() < 0.5 ? 1 : -1;
+            const sign2 = Math.random() < 0.5 ? 1 : -1;
+            
+            const q1 = charge1Real * sign1;
+            const q2 = charge2Real * sign2;
+            
+            // Random positions in meters
+            const x1Real = (Math.random() * 4 - 2); // -2 to 2 m
+            const y1Real = (Math.random() * 4 - 2);
+            const x2Real = (Math.random() * 4 - 2);
+            const y2Real = (Math.random() * 4 - 2);
+            
+            if (calculateDistance(x1Real, y1Real, x2Real, y2Real) < 1) {
+                return generateQuestion();
+            }
+            
+            // Visualization coordinates (scaled)
+            const scale = 100;
+            const x1Vis = x1Real * scale;
+            const y1Vis = y1Real * scale;
+            const x2Vis = x2Real * scale;
+            const y2Vis = y2Real * scale;
+            
+            activeCharges = [
+                { 
+                    x: x1Vis, y: y1Vis,
+                    xReal: x1Real, yReal: y1Real,
+                    chargeReal: q1,
+                    chargeVis: q1 / 1e-9 * 3, // Scale for visualization
+                    radius: 20,
+                    color: q1 > 0 ? COLORS.MAGENTA : COLORS.CYAN,
+                    label: 'A',
+                    sign: q1 > 0 ? '+' : '-'
+                },
+                { 
+                    x: x2Vis, y: y2Vis,
+                    xReal: x2Real, yReal: y2Real,
+                    chargeReal: q2,
+                    chargeVis: q2 / 1e-9 * 3,
+                    radius: 20,
+                    color: q2 > 0 ? COLORS.MAGENTA : COLORS.CYAN,
+                    label: 'B',
+                    sign: q2 > 0 ? '+' : '-'
+                }
+            ];
+            
+            // Random point X
+            const xPointReal = (Math.random() * 4 - 2);
+            const yPointReal = (Math.random() * 4 - 2);
+            const xPointVis = xPointReal * scale;
+            const yPointVis = yPointReal * scale;
+            
+            currentPointX = { 
+                x: xPointVis, 
+                y: yPointVis,
+                xReal: xPointReal,
+                yReal: yPointReal
+            };
+            
+            // Calculate correct answers
+            const potential = calculatePotentialReal(activeCharges, xPointReal, yPointReal);
+            const fieldStrength = calculateFieldStrengthReal(activeCharges, xPointReal, yPointReal);
+            
+            correctAnswers = { potential, fieldStrength };
+            
+            updateLabels();
+            document.getElementById('potentialInput').value = '';
+            document.getElementById('fieldStrengthInput').value = '';
+            updateInputList();
+            setFocus(0);
+        }
+
+        function updateLabels() {
+            const labelsDiv = document.getElementById('chargeLabels');
+            labelsDiv.innerHTML = `
+                <div class="charge-label-item">
+                    <strong style="color: ${activeCharges[0].color};">CHARGE A:</strong> ${activeCharges[0].sign}${(Math.abs(activeCharges[0].chargeReal) / 1e-9).toFixed(0)} nC<br>
+                    (${activeCharges[0].xReal.toFixed(2)} m, ${activeCharges[0].yReal.toFixed(2)} m)
+                </div>
+                <div class="charge-label-item">
+                    <strong style="color: ${activeCharges[1].color};">CHARGE B:</strong> ${activeCharges[1].sign}${(Math.abs(activeCharges[1].chargeReal) / 1e-9).toFixed(0)} nC<br>
+                    (${activeCharges[1].xReal.toFixed(2)} m, ${activeCharges[1].yReal.toFixed(2)} m)
+                </div>
+            `;
+            document.getElementById('pointXInfo').innerHTML = 
+                `(${currentPointX.xReal.toFixed(2)} m, ${currentPointX.yReal.toFixed(2)} m)`;
+        }
+
+        function updateInputList() {
+            inputElements.length = 0;
+            inputElements.push(document.getElementById('potentialInput'));
+            inputElements.push(document.getElementById('fieldStrengthInput'));
+            const scaffoldInputs = document.querySelectorAll('.small-input');
+            scaffoldInputs.forEach(input => inputElements.push(input));
+        }
+
+        function setFocus(index) {
+            if (index >= 0 && index < inputElements.length) {
+                currentFocusIndex = index;
+                inputElements[index].focus();
+            }
+        }
+
+        function addScaffoldAnswer(label, value) {
+            const scaffoldAnswersDiv = document.getElementById('scaffoldAnswers');
+            const existingAnswers = scaffoldAnswersDiv.querySelectorAll('.scaffold-answer-item');
+            for (let item of existingAnswers) {
+                if (item.textContent.includes(label)) {
+                    return;
+                }
+            }
+            const answerItem = document.createElement('div');
+            answerItem.className = 'scaffold-answer-item';
+            answerItem.innerHTML = `<strong>${label}:</strong> ${value}`;
+            scaffoldAnswersDiv.appendChild(answerItem);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (!quizActive || !quizStarted) return;
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (scaffoldingActive) {
+                    const activeScaffold = document.querySelector('.scaffold-section.active');
+                    if (activeScaffold) {
+                        const checkBtn = activeScaffold.querySelector('.small-button');
+                        if (checkBtn) {
+                            checkBtn.click();
+                            return;
+                        }
+                    }
+                }
+                if (document.getElementById('nextQuestionBtn').style.display !== 'none') {
+                    document.getElementById('nextQuestionBtn').click();
+                } else {
+                    document.getElementById('checkAnswersBtn').click();
+                }
+            } else if (e.key === 'Tab') {
+                e.preventDefault();
+                updateInputList();
+                currentFocusIndex = (currentFocusIndex + 1) % inputElements.length;
+                setFocus(currentFocusIndex);
+            }
+        });
+
+        function showMessage(text, type) {
+            document.getElementById('messageArea').innerHTML = `<div class="message ${type}">${text}</div>`;
+        }
+
+        function updateScore() {
+            document.getElementById('scoreDisplay').textContent = score;
+        }
+
+        function endQuiz() {
+            quizActive = false;
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            const totalQuestions = questionsAnswered.length;
+            const correctFirst = questionsAnswered.filter(q => q.correct && !q.scaffolded).length;
+            const correctScaffolded = questionsAnswered.filter(q => q.correct && q.scaffolded).length;
+            const avgTime = totalQuestions > 0 ? 
+                questionsAnswered.reduce((sum, q) => sum + q.timeTaken, 0) / totalQuestions : 0;
+            document.getElementById('finalStats').innerHTML = `
+                <div class="stat">FINAL SCORE: ${score}</div>
+                <div class="stat">QUESTIONS ATTEMPTED: ${totalQuestions}</div>
+                <div class="stat">CORRECT (FIRST TRY): ${correctFirst}</div>
+                <div class="stat">CORRECT (SCAFFOLDED): ${correctScaffolded}</div>
+                <div class="stat">AVERAGE TIME: ${avgTime.toFixed(1)}s</div>
+            `;
+            document.getElementById('endScreen').style.display = 'block';
+        }
+
+
+        // Check answers
+        document.getElementById('checkAnswersBtn').addEventListener('click', () => {
+            const potentialInput = parseFloat(document.getElementById('potentialInput').value);
+            const fieldStrengthInput = parseFloat(document.getElementById('fieldStrengthInput').value);
+            
+            if (isNaN(potentialInput) || isNaN(fieldStrengthInput)) {
+                showMessage('Please enter both values.', 'info');
+                return;
+            }
+            
+            const potentialCheck = checkAnswer(potentialInput, correctAnswers.potential, 2);
+            const fieldCheck = checkAnswer(fieldStrengthInput, correctAnswers.fieldStrength, 2);
+            
+            if (potentialCheck.correct && fieldCheck.correct) {
+                const timeTaken = (Date.now() - currentQuestionStartTime) / 1000;
+                const points = 10;
+                score += points;
+                updateScore();
+                questionsAnswered.push({
+                    question: questionNumber,
+                    correct: true,
+                    scaffolded: false,
+                    timeTaken
+                });
+                showMessage(`✓ CORRECT! +${points} points<br>V = ${correctAnswers.potential.toExponential(2)} V<br>E = ${correctAnswers.fieldStrength.toExponential(2)} N/C`, 'correct');
+                document.getElementById('checkAnswersBtn').style.display = 'none';
+                document.getElementById('nextQuestionBtn').style.display = 'block';
+            } else if (potentialCheck.closeEnough || fieldCheck.closeEnough) {
+                let msg = '✗ Check for rounding errors:<br>';
+                if (potentialCheck.closeEnough) msg += 'Potential is close but not exact.<br>';
+                if (fieldCheck.closeEnough) msg += 'Field strength is close but not exact.<br>';
+                showMessage(msg, 'incorrect');
+            } else {
+                showMessage('✗ INCORRECT. Working through step by step:', 'incorrect');
+                startScaffolding();
+            }
+        });
+
+        function startScaffolding() {
+            scaffoldingActive = true;
+            scaffoldStep = 1;
+            showScaffoldStep(1);
+        }
+
+        function showScaffoldStep(step) {
+            const scaffoldArea = document.getElementById('scaffoldArea');
+            if (step === 1) {
+                scaffoldArea.innerHTML = `
+                    <div class="scaffold-section active" id="scaffold1">
+                        <div class="question-title" style="margin-top: 12px;">STEP 1: DISTANCES (m)</div>
+                        <div style="font-size: 9px; color: ${COLORS.CYAN}; margin: 4px 0;">A to X:</div>
+                        <input type="text" class="small-input" id="distA">
+                        <div style="font-size: 9px; color: ${COLORS.CYAN}; margin: 4px 0;">B to X:</div>
+                        <input type="text" class="small-input" id="distB">
+                        <button class="small-button" onclick="checkScaffold1()">CHECK</button>
+                    </div>
+                `;
+                updateInputList();
+                setFocus(2);
+            } else if (step === 2) {
+                scaffoldArea.innerHTML += `
+                    <div class="scaffold-section active" id="scaffold2">
+                        <div class="question-title" style="margin-top: 12px;">STEP 2: POTENTIAL FROM EACH (V)</div>
+                        <div style="font-size: 9px; color: ${COLORS.CYAN}; margin: 4px 0;">V from A:</div>
+                        <input type="text" class="small-input" id="potA">
+                        <div style="font-size: 9px; color: ${COLORS.CYAN}; margin: 4px 0;">V from B:</div>
+                        <input type="text" class="small-input" id="potB">
+                        <button class="small-button" onclick="checkScaffold2()">CHECK</button>
+                    </div>
+                `;
+                updateInputList();
+            } else if (step === 3) {
+                scaffoldArea.innerHTML += `
+                    <div class="scaffold-section active" id="scaffold3">
+                        <div class="question-title" style="margin-top: 12px;">STEP 3: TOTAL POTENTIAL (V)</div>
+                        <input type="text" class="small-input" id="totalPot">
+                        <button class="small-button" onclick="checkScaffold3()">CHECK</button>
+                    </div>
+                `;
+                updateInputList();
+            } else if (step === 4) {
+                scaffoldArea.innerHTML += `
+                    <div class="scaffold-section active" id="scaffold4">
+                        <div class="question-title" style="margin-top: 12px;">STEP 4: FIELD FROM EACH (N/C)</div>
+                        <div style="font-size: 9px; color: ${COLORS.CYAN}; margin: 4px 0;">E from A:</div>
+                        <input type="text" class="small-input" id="fieldA">
+                        <div style="font-size: 9px; color: ${COLORS.CYAN}; margin: 4px 0;">E from B:</div>
+                        <input type="text" class="small-input" id="fieldB">
+                        <button class="small-button" onclick="checkScaffold4()">CHECK</button>
+                    </div>
+                `;
+                updateInputList();
+            } else if (step === 5) {
+                scaffoldArea.innerHTML += `
+                    <div class="scaffold-section active" id="scaffold5">
+                        <div class="question-title" style="margin-top: 12px;">STEP 5: ANGLE (degrees)</div>
+                        <input type="text" class="small-input" id="angleField">
+                        <button class="small-button" onclick="checkScaffold5()">CHECK</button>
+                    </div>
+                `;
+                updateInputList();
+            } else if (step === 6) {
+                scaffoldArea.innerHTML += `
+                    <div class="scaffold-section active" id="scaffold6">
+                        <div class="question-title" style="margin-top: 12px;">STEP 6: RESULTANT (N/C)</div>
+                        <input type="text" class="small-input" id="resultantField">
+                        <button class="small-button" onclick="checkScaffold6()">CHECK</button>
+                    </div>
+                `;
+                updateInputList();
+            }
+        }
+
+        window.checkScaffold1 = function() {
+            const distA = parseFloat(document.getElementById('distA').value);
+            const distB = parseFloat(document.getElementById('distB').value);
+            const correctDistA = calculateDistance(activeCharges[0].xReal, activeCharges[0].yReal, currentPointX.xReal, currentPointX.yReal);
+            const correctDistB = calculateDistance(activeCharges[1].xReal, activeCharges[1].yReal, currentPointX.xReal, currentPointX.yReal);
+            const checkA = checkAnswer(distA, correctDistA, 2);
+            const checkB = checkAnswer(distB, correctDistB, 2);
+            
+            if (checkA.correct && checkB.correct) {
+                if (!scaffoldAnswersRevealed['distances']) {
+                    showMessage('✓ Distances correct! +1 point', 'correct');
+                    score += 1;
+                    updateScore();
+                } else {
+                    showMessage('✓ Distances correct! (no points - answer was revealed)', 'correct');
+                }
+                document.getElementById('scaffold1').classList.remove('active');
+                showScaffoldStep(2);
+            } else {
+                scaffoldAttempts['distances'] = (scaffoldAttempts['distances'] || 0) + 1;
+                if (scaffoldAttempts['distances'] === 1) {
+                    showMessage('✗ Incorrect. Try again.', 'incorrect');
+                } else {
+                    showMessage(`✗ Incorrect. A→X = ${correctDistA.toFixed(3)} m, B→X = ${correctDistB.toFixed(3)} m`, 'incorrect');
+                    addScaffoldAnswer('Distance A→X', correctDistA.toFixed(3) + ' m');
+                    addScaffoldAnswer('Distance B→X', correctDistB.toFixed(3) + ' m');
+                    scaffoldAnswersRevealed['distances'] = true;
+                }
+            }
+        };
+
+        window.checkScaffold2 = function() {
+            const potA = parseFloat(document.getElementById('potA').value);
+            const potB = parseFloat(document.getElementById('potB').value);
+            const distA = calculateDistance(activeCharges[0].xReal, activeCharges[0].yReal, currentPointX.xReal, currentPointX.yReal);
+            const distB = calculateDistance(activeCharges[1].xReal, activeCharges[1].yReal, currentPointX.xReal, currentPointX.yReal);
+            const correctPotA = (K_REAL * activeCharges[0].chargeReal) / distA;
+            const correctPotB = (K_REAL * activeCharges[1].chargeReal) / distB;
+            const checkA = checkAnswer(potA, correctPotA, 2);
+            const checkB = checkAnswer(potB, correctPotB, 2);
+            
+            if (checkA.correct && checkB.correct) {
+                if (!scaffoldAnswersRevealed['individual_potentials']) {
+                    showMessage('✓ Individual potentials correct! +1 point', 'correct');
+                    score += 1;
+                    updateScore();
+                } else {
+                    showMessage('✓ Individual potentials correct! (no points - answer was revealed)', 'correct');
+                }
+                document.getElementById('scaffold2').classList.remove('active');
+                showScaffoldStep(3);
+            } else {
+                scaffoldAttempts['individual_potentials'] = (scaffoldAttempts['individual_potentials'] || 0) + 1;
+                if (scaffoldAttempts['individual_potentials'] === 1) {
+                    showMessage('✗ Incorrect. Use V = kQ/r. Try again.', 'incorrect');
+                } else {
+                    showMessage(`✗ Incorrect. V_A = ${correctPotA.toExponential(2)} V, V_B = ${correctPotB.toExponential(2)} V`, 'incorrect');
+                    addScaffoldAnswer('Potential from A', correctPotA.toExponential(2) + ' V');
+                    addScaffoldAnswer('Potential from B', correctPotB.toExponential(2) + ' V');
+                    scaffoldAnswersRevealed['individual_potentials'] = true;
+                }
+            }
+        };
+
+        window.checkScaffold3 = function() {
+            const totalPot = parseFloat(document.getElementById('totalPot').value);
+            const check = checkAnswer(totalPot, correctAnswers.potential, 2);
+            
+            if (check.correct) {
+                if (!scaffoldAnswersRevealed['total_potential']) {
+                    showMessage('✓ Total potential correct! +1 point', 'correct');
+                    score += 1;
+                    updateScore();
+                } else {
+                    showMessage('✓ Total potential correct! (no points - answer was revealed)', 'correct');
+                }
+                document.getElementById('scaffold3').classList.remove('active');
+                showScaffoldStep(4);
+            } else {
+                scaffoldAttempts['total_potential'] = (scaffoldAttempts['total_potential'] || 0) + 1;
+                if (scaffoldAttempts['total_potential'] === 1) {
+                    showMessage('✗ Incorrect. Add V_A + V_B. Try again.', 'incorrect');
+                } else {
+                    showMessage(`✗ Incorrect. Correct: ${correctAnswers.potential.toExponential(2)} V`, 'incorrect');
+                    addScaffoldAnswer('Total Potential', correctAnswers.potential.toExponential(2) + ' V');
+                    scaffoldAnswersRevealed['total_potential'] = true;
+                }
+            }
+        };
+
+        window.checkScaffold4 = function() {
+            const fieldA = parseFloat(document.getElementById('fieldA').value);
+            const fieldB = parseFloat(document.getElementById('fieldB').value);
+            const distA = calculateDistance(activeCharges[0].xReal, activeCharges[0].yReal, currentPointX.xReal, currentPointX.yReal);
+            const distB = calculateDistance(activeCharges[1].xReal, activeCharges[1].yReal, currentPointX.xReal, currentPointX.yReal);
+            const correctFieldA = (K_REAL * Math.abs(activeCharges[0].chargeReal)) / (distA * distA);
+            const correctFieldB = (K_REAL * Math.abs(activeCharges[1].chargeReal)) / (distB * distB);
+            const checkA = checkAnswer(fieldA, correctFieldA, 2);
+            const checkB = checkAnswer(fieldB, correctFieldB, 2);
+            
+            if (checkA.correct && checkB.correct) {
+                if (!scaffoldAnswersRevealed['field_strengths']) {
+                    showMessage('✓ Field strengths correct! +1 point', 'correct');
+                    score += 1;
+                    updateScore();
+                } else {
+                    showMessage('✓ Field strengths correct! (no points - answer was revealed)', 'correct');
+                }
+                document.getElementById('scaffold4').classList.remove('active');
+                showScaffoldStep(5);
+            } else {
+                scaffoldAttempts['field_strengths'] = (scaffoldAttempts['field_strengths'] || 0) + 1;
+                if (scaffoldAttempts['field_strengths'] === 1) {
+                    showMessage('✗ Incorrect. Use E = k|Q|/r². Try again.', 'incorrect');
+                } else {
+                    showMessage(`✗ Incorrect. E_A = ${correctFieldA.toExponential(2)} N/C, E_B = ${correctFieldB.toExponential(2)} N/C`, 'incorrect');
+                    addScaffoldAnswer('Field strength from A', correctFieldA.toExponential(2) + ' N/C');
+                    addScaffoldAnswer('Field strength from B', correctFieldB.toExponential(2) + ' N/C');
+                    scaffoldAnswersRevealed['field_strengths'] = true;
+                }
+            }
+        };
+
+        window.checkScaffold5 = function() {
+            const angleField = parseFloat(document.getElementById('angleField').value);
+            
+            // Calculate field direction vectors
+            const dxA = currentPointX.xReal - activeCharges[0].xReal;
+            const dyA = currentPointX.yReal - activeCharges[0].yReal;
+            const dxB = currentPointX.xReal - activeCharges[1].xReal;
+            const dyB = currentPointX.yReal - activeCharges[1].yReal;
+            
+            // Field direction depends on sign of charge
+            let angleA, angleB;
+            if (activeCharges[0].chargeReal > 0) {
+                angleA = Math.atan2(dyA, dxA); // Away from positive
+            } else {
+                angleA = Math.atan2(-dyA, -dxA); // Toward negative
+            }
+            
+            if (activeCharges[1].chargeReal > 0) {
+                angleB = Math.atan2(dyB, dxB); // Away from positive
+            } else {
+                angleB = Math.atan2(-dyB, -dxB); // Toward negative
+            }
+            
+            let angleDiff = Math.abs(angleA - angleB) * 180 / Math.PI;
+            if (angleDiff > 180) angleDiff = 360 - angleDiff;
+            
+            const check = checkAnswer(angleField, angleDiff, 2);
+            
+            if (check.correct) {
+                if (!scaffoldAnswersRevealed['angle']) {
+                    showMessage('✓ Angle correct! +1 point', 'correct');
+                    score += 1;
+                    updateScore();
+                } else {
+                    showMessage('✓ Angle correct! (no points - answer was revealed)', 'correct');
+                }
+                document.getElementById('scaffold5').classList.remove('active');
+                showScaffoldStep(6);
+            } else {
+                scaffoldAttempts['angle'] = (scaffoldAttempts['angle'] || 0) + 1;
+                if (scaffoldAttempts['angle'] === 1) {
+                    showMessage('✗ Incorrect. Try again.', 'incorrect');
+                } else {
+                    showMessage(`✗ Incorrect. Correct: ${angleDiff.toFixed(1)}°`, 'incorrect');
+                    addScaffoldAnswer('Angle between vectors', angleDiff.toFixed(1) + '°');
+                    scaffoldAnswersRevealed['angle'] = true;
+                }
+            }
+        };
+
+        window.checkScaffold6 = function() {
+            const resultantField = parseFloat(document.getElementById('resultantField').value);
+            const check = checkAnswer(resultantField, correctAnswers.fieldStrength, 2);
+            
+            if (check.correct) {
+                if (!scaffoldAnswersRevealed['resultant']) {
+                    showMessage('✓ Resultant correct! +2 points', 'correct');
+                    score += 2;
+                    updateScore();
+                } else {
+                    showMessage('✓ Resultant correct! (no points - answer was revealed)', 'correct');
+                }
+                const timeTaken = (Date.now() - currentQuestionStartTime) / 1000;
+                questionsAnswered.push({
+                    question: questionNumber,
+                    correct: true,
+                    scaffolded: true,
+                    timeTaken
+                });
+                document.getElementById('scaffold6').classList.remove('active');
+                document.getElementById('checkAnswersBtn').style.display = 'none';
+                document.getElementById('nextQuestionBtn').style.display = 'block';
+            } else {
+                scaffoldAttempts['resultant'] = (scaffoldAttempts['resultant'] || 0) + 1;
+                if (scaffoldAttempts['resultant'] === 1) {
+                    showMessage('✗ Incorrect. Use cosine rule. Try again.', 'incorrect');
+                } else {
+                    showMessage(`✗ Incorrect. Correct: ${correctAnswers.fieldStrength.toExponential(2)} N/C`, 'incorrect');
+                    addScaffoldAnswer('Resultant field strength', correctAnswers.fieldStrength.toExponential(2) + ' N/C');
+                    scaffoldAnswersRevealed['resultant'] = true;
+                }
+            }
+        };
+
+        document.getElementById('nextQuestionBtn').addEventListener('click', () => {
+            generateQuestion();
+        });
+
+        document.getElementById('endEarlyBtn').addEventListener('click', () => {
+            document.getElementById('confirmEndDialog').style.display = 'block';
+        });
+
+        document.getElementById('confirmEndYes').addEventListener('click', () => {
+            document.getElementById('confirmEndDialog').style.display = 'none';
+            endQuiz();
+        });
+
+        document.getElementById('confirmEndNo').addEventListener('click', () => {
+            document.getElementById('confirmEndDialog').style.display = 'none';
+        });
+
+        document.getElementById('startQuizBtn').addEventListener('click', () => {
+            document.getElementById('welcomeScreen').style.display = 'none';
+            quizActive = true;
+            quizStarted = true;
+            startTimer();
+            generateQuestion();
+        });
+
+
+        // Drawing functions
+        function drawArrow(fromX, fromY, toX, toY, arrowSize) {
+            const dx = toX - fromX;
+            const dy = toY - fromY;
+            const length = Math.sqrt(dx * dx + dy * dy);
+            if (length < 0.1) return;
+            const ux = dx / length;
+            const uy = dy / length;
+            const px = -uy;
+            const py = ux;
+            const baseX = toX - ux * arrowSize;
+            const baseY = toY - uy * arrowSize;
+            const p1x = baseX + px * arrowSize * 0.4;
+            const p1y = baseY + py * arrowSize * 0.4;
+            const p2x = baseX - px * arrowSize * 0.4;
+            const p2y = baseY - py * arrowSize * 0.4;
+            ctx.beginPath();
+            ctx.moveTo(toX, toY);
+            ctx.lineTo(p1x, p1y);
+            ctx.lineTo(p2x, p2y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawFieldLines() {
+            if (!showFieldLines || activeCharges.length === 0) return;
+            
+            ctx.strokeStyle = COLORS.WHITE;
+            ctx.fillStyle = COLORS.WHITE;
+            ctx.lineWidth = 2;
+            ctx.globalAlpha = 0.8;
+            
+            const boundarySize = 800;
+            const positiveCharges = activeCharges.filter(c => c.chargeVis > 0);
+            const negativeCharges = activeCharges.filter(c => c.chargeVis < 0);
+            
+            const startingPoints = [];
+            
+            if (positiveCharges.length > 0) {
+                const numLinesPerCharge = Math.max(8, Math.min(16, Math.round(24 / positiveCharges.length)));
+                for (const charge of positiveCharges) {
+                    const seedRadius = charge.radius * 0.5;
+                    for (let i = 0; i < numLinesPerCharge; i++) {
+                        const angle = (2 * Math.PI * i) / numLinesPerCharge;
+                        startingPoints.push({
+                            x: charge.x + seedRadius * Math.cos(angle),
+                            y: charge.y + seedRadius * Math.sin(angle),
+                            backward: false
+                        });
+                    }
+                }
+                
+                if (negativeCharges.length > 0) {
+                    const numLinesPerCharge = Math.max(8, Math.min(16, Math.round(24 / negativeCharges.length)));
+                    for (const charge of negativeCharges) {
+                        const seedRadius = charge.radius * 0.5;
+                        for (let i = 0; i < numLinesPerCharge; i++) {
+                            const angle = (2 * Math.PI * i) / numLinesPerCharge;
+                            startingPoints.push({
+                                x: charge.x + seedRadius * Math.cos(angle),
+                                y: charge.y + seedRadius * Math.sin(angle),
+                                backward: true
+                            });
+                        }
+                    }
+                }
+            } else {
+                const totalAbsCharge = activeCharges.reduce((sum, c) => sum + Math.abs(c.chargeVis), 0);
+                const numFieldLines = Math.max(16, Math.min(40, Math.round(totalAbsCharge * 3)));
+                const perimeterLength = 4 * boundarySize;
+                const spacing = perimeterLength / numFieldLines;
+                
+                for (let i = 0; i < numFieldLines; i++) {
+                    const distance = i * spacing;
+                    let x, y;
+                    if (distance < boundarySize) {
+                        x = -boundarySize / 2 + distance;
+                        y = -boundarySize / 2;
+                    } else if (distance < 2 * boundarySize) {
+                        x = boundarySize / 2;
+                        y = -boundarySize / 2 + (distance - boundarySize);
+                    } else if (distance < 3 * boundarySize) {
+                        x = boundarySize / 2 - (distance - 2 * boundarySize);
+                        y = boundarySize / 2;
+                    } else {
+                        x = -boundarySize / 2;
+                        y = boundarySize / 2 - (distance - 3 * boundarySize);
+                    }
+                    startingPoints.push({ x, y, backward: false });
+                }
+            }
+            
+            const fieldLinePaths = [];
+            
+            for (const start of startingPoints) {
+                let x = start.x;
+                let y = start.y;
+                const points = [{ x, y }];
+                let shouldSkip = false;
+                const stepDir = start.backward ? -1 : 1;
+                
+                for (let step = 0; step < 500; step++) {
+                    const field = calculateField(x, y);
+                    const fieldMag = Math.sqrt(field.fx * field.fx + field.fy * field.fy);
+                    if (fieldMag < 0.1) break;
+                    
+                    const stepSize = 3;
+                    const dx = (field.fx / fieldMag) * stepSize * stepDir;
+                    const dy = (field.fy / fieldMag) * stepSize * stepDir;
+                    x += dx;
+                    y += dy;
+                    
+                    if (Math.abs(x) > boundarySize / 2 || Math.abs(y) > boundarySize / 2) break;
+                    
+                    for (const existingPath of fieldLinePaths) {
+                        for (const existingPoint of existingPath.points) {
+                            const distToExisting = Math.sqrt((x - existingPoint.x) ** 2 + (y - existingPoint.y) ** 2);
+                            if (distToExisting < 5) {
+                                shouldSkip = true;
+                                break;
+                            }
+                        }
+                        if (shouldSkip) break;
+                    }
+                    
+                    if (shouldSkip) break;
+                    points.push({ x, y });
+                    
+                    let hitCharge = false;
+                    for (const charge of activeCharges) {
+                        const distToCharge = Math.sqrt((x - charge.x) ** 2 + (y - charge.y) ** 2);
+                        if (distToCharge < charge.radius * 0.5) {
+                            if (!start.backward || charge.chargeVis > 0) {
+                                hitCharge = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hitCharge) break;
+                }
+                
+                if (!shouldSkip && points.length > 10) {
+                    fieldLinePaths.push({ points, backward: start.backward });
+                }
+            }
+            
+            for (const path of fieldLinePaths) {
+                const { points } = path;
+                if (points.length > 1) {
+                    ctx.beginPath();
+                    const start = project3DToScreen(points[0].x, points[0].y, CHARGE_PLANE_Z);
+                    ctx.moveTo(start.x, start.y);
+                    for (let j = 1; j < points.length; j++) {
+                        const pos = project3DToScreen(points[j].x, points[j].y, CHARGE_PLANE_Z);
+                        ctx.lineTo(pos.x, pos.y);
+                    }
+                    ctx.stroke();
+                    
+                    const arrowInterval = Math.max(5, Math.floor(points.length / 3));
+                    for (let j = arrowInterval; j < points.length - 1; j += arrowInterval) {
+                        const p1 = project3DToScreen(points[j - 1].x, points[j - 1].y, CHARGE_PLANE_Z);
+                        const p2 = project3DToScreen(points[j].x, points[j].y, CHARGE_PLANE_Z);
+                        drawArrow(p1.x, p1.y, p2.x, p2.y, 6);
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawCharge(charge) {
+            const pos = project3DToScreen(charge.x, charge.y, CHARGE_PLANE_Z);
+            ctx.fillStyle = charge.color;
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, charge.radius * zoomLevel, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = COLORS.WHITE;
+            ctx.globalAlpha = 0.3;
+            ctx.beginPath();
+            ctx.arc(pos.x - charge.radius * zoomLevel * 0.3, pos.y - charge.radius * zoomLevel * 0.3, 
+                    charge.radius * zoomLevel * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            ctx.fillStyle = COLORS.BLACK;
+            ctx.font = `bold ${14 * zoomLevel}px 'Courier New'`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(charge.label, pos.x, pos.y);
+        }
+
+        function drawPointX() {
+            if (!currentPointX) return;
+            const screenPos = project3DToScreen(currentPointX.x, currentPointX.y, CHARGE_PLANE_Z);
+            ctx.strokeStyle = COLORS.WHITE;
+            ctx.lineWidth = 4 * zoomLevel;
+            const size = 15 * zoomLevel;
+            ctx.beginPath();
+            ctx.moveTo(screenPos.x - size, screenPos.y - size);
+            ctx.lineTo(screenPos.x + size, screenPos.y + size);
+            ctx.moveTo(screenPos.x + size, screenPos.y - size);
+            ctx.lineTo(screenPos.x - size, screenPos.y + size);
+            ctx.stroke();
+        }
+
+        function drawEquipotentials(potentials, centerX, centerY, halfSize) {
+            if (!showEquipotentials || activeCharges.length === 0) return;
+            let minPot = 0;
+            let maxPot = 0;
+            for (let iy = 0; iy < GRID_SIZE; iy++) {
+                for (let ix = 0; ix < GRID_SIZE; ix++) {
+                    const pot = potentials[iy][ix];
+                    if (pot < minPot) minPot = pot;
+                    if (pot > maxPot) maxPot = pot;
+                }
+            }
+            const deltaV = K_VIS / equipotentialLevels;
+            const levels = [];
+            const firstLevel = Math.ceil(minPot / deltaV) * deltaV;
+            for (let v = firstLevel; v <= maxPot + deltaV * 0.001; v += deltaV) {
+                if (Math.abs(v) > deltaV * 0.001) levels.push(v);
+            }
+            ctx.strokeStyle = COLORS.MAGENTA;
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.7;
+            for (const level of levels) {
+                for (let iy = 0; iy < GRID_SIZE - 1; iy++) {
+                    for (let ix = 0; ix < GRID_SIZE - 1; ix++) {
+                        const x0 = centerX - halfSize + ix * GRID_SPACING;
+                        const y0 = centerY - halfSize + iy * GRID_SPACING;
+                        const x1 = x0 + GRID_SPACING;
+                        const y1 = y0 + GRID_SPACING;
+                        const p00 = potentials[iy][ix];
+                        const p10 = potentials[iy][ix + 1];
+                        const p01 = potentials[iy + 1][ix];
+                        const p11 = potentials[iy + 1][ix + 1];
+                        const edges = [];
+                        if ((p00 <= level && p10 >= level) || (p00 >= level && p10 <= level)) {
+                            const t = (level - p00) / (p10 - p00);
+                            const x = x0 + t * GRID_SPACING;
+                            const y = y0;
+                            edges.push({ x, y, z: level * POTENTIAL_SCALE });
+                        }
+                        if ((p10 <= level && p11 >= level) || (p10 >= level && p11 <= level)) {
+                            const t = (level - p10) / (p11 - p10);
+                            const x = x1;
+                            const y = y0 + t * GRID_SPACING;
+                            edges.push({ x, y, z: level * POTENTIAL_SCALE });
+                        }
+                        if ((p01 <= level && p11 >= level) || (p01 >= level && p11 <= level)) {
+                            const t = (level - p01) / (p11 - p01);
+                            const x = x0 + t * GRID_SPACING;
+                            const y = y1;
+                            edges.push({ x, y, z: level * POTENTIAL_SCALE });
+                        }
+                        if ((p00 <= level && p01 >= level) || (p00 >= level && p01 <= level)) {
+                            const t = (level - p00) / (p01 - p00);
+                            const x = x0;
+                            const y = y0 + t * GRID_SPACING;
+                            edges.push({ x, y, z: level * POTENTIAL_SCALE });
+                        }
+                        if (edges.length === 2) {
+                            const pos1 = project3DToScreen(edges[0].x, edges[0].y, edges[0].z);
+                            const pos2 = project3DToScreen(edges[1].x, edges[1].y, edges[1].z);
+                            ctx.beginPath();
+                            ctx.moveTo(pos1.x, pos1.y);
+                            ctx.lineTo(pos2.x, pos2.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function drawPotentialSurface() {
+            const centerX = 0;
+            const centerY = 0;
+            const halfSize = (GRID_SIZE / 2) * GRID_SPACING;
+            const potentials = [];
+            for (let iy = 0; iy < GRID_SIZE; iy++) {
+                potentials[iy] = [];
+                for (let ix = 0; ix < GRID_SIZE; ix++) {
+                    const x = centerX - halfSize + ix * GRID_SPACING;
+                    const y = centerY - halfSize + iy * GRID_SPACING;
+                    potentials[iy][ix] = calculatePotential(x, y);
+                }
+            }
+            ctx.strokeStyle = COLORS.CYAN;
+            ctx.lineWidth = 0.3;
+            ctx.globalAlpha = 0.6;
+            for (let iy = 0; iy < GRID_SIZE; iy++) {
+                ctx.beginPath();
+                const points = [];
+                for (let ix = 0; ix < GRID_SIZE; ix++) {
+                    const x = centerX - halfSize + ix * GRID_SPACING;
+                    const y = centerY - halfSize + iy * GRID_SPACING;
+                    const z = potentials[iy][ix] * POTENTIAL_SCALE;
+                    points.push(project3DToScreen(x, y, z));
+                }
+                if (points.length > 0) {
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length - 1; i++) {
+                        const xc = (points[i].x + points[i + 1].x) / 2;
+                        const yc = (points[i].y + points[i + 1].y) / 2;
+                        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+                    }
+                    if (points.length > 1) {
+                        const last = points[points.length - 1];
+                        const prev = points[points.length - 2];
+                        ctx.quadraticCurveTo(prev.x, prev.y, last.x, last.y);
+                    }
+                }
+                ctx.stroke();
+            }
+            for (let ix = 0; ix < GRID_SIZE; ix++) {
+                ctx.beginPath();
+                const points = [];
+                for (let iy = 0; iy < GRID_SIZE; iy++) {
+                    const x = centerX - halfSize + ix * GRID_SPACING;
+                    const y = centerY - halfSize + iy * GRID_SPACING;
+                    const z = potentials[iy][ix] * POTENTIAL_SCALE;
+                    points.push(project3DToScreen(x, y, z));
+                }
+                if (points.length > 0) {
+                    ctx.moveTo(points[0].x, points[0].y);
+                    for (let i = 1; i < points.length - 1; i++) {
+                        const xc = (points[i].x + points[i + 1].x) / 2;
+                        const yc = (points[i].y + points[i + 1].y) / 2;
+                        ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+                    }
+                    if (points.length > 1) {
+                        const last = points[points.length - 1];
+                        const prev = points[points.length - 2];
+                        ctx.quadraticCurveTo(prev.x, prev.y, last.x, last.y);
+                    }
+                }
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+            return { potentials, centerX, centerY, halfSize };
+        }
+
+        function render() {
+            if (Math.abs(cameraTilt - targetCameraTilt) > 0.1) {
+                cameraTilt += (targetCameraTilt - cameraTilt) * TILT_ANIMATION_SPEED;
+            } else {
+                cameraTilt = targetCameraTilt;
+            }
+            ctx.fillStyle = COLORS.BLACK;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const surfaceData = drawPotentialSurface();
+            if (surfaceData) {
+                drawEquipotentials(surfaceData.potentials, surfaceData.centerX, 
+                                 surfaceData.centerY, surfaceData.halfSize);
+            }
+            drawFieldLines();
+            for (const charge of activeCharges) {
+                drawCharge(charge);
+            }
+            drawPointX();
+            requestAnimationFrame(render);
+        }
+
+        // Rotation controls
+        canvas.addEventListener('mousedown', (e) => {
+            isRotating = true;
+            lastRotateX = e.clientX;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isRotating) {
+                const deltaX = e.clientX - lastRotateX;
+                rotationAngle += deltaX * 0.5;
+                lastRotateX = e.clientX;
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isRotating = false;
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            isRotating = true;
+            lastRotateX = e.touches[0].clientX;
+        });
+
+        window.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (isRotating && e.touches.length > 0) {
+                const deltaX = e.touches[0].clientX - lastRotateX;
+                rotationAngle += deltaX * 0.5;
+                lastRotateX = e.touches[0].clientX;
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            isRotating = false;
+        });
+
+        // Start rendering immediately, quiz starts on button click
+        render();
+    </script>
+</body>
+</html>
